@@ -33,7 +33,7 @@ def get_ldap_info(server='', port='', tls=False, timeout=0, timelimit=0, binddn=
 
 def main():
     parser = argparse.ArgumentParser(description='Squid external acl ldap ou helper')
-    parser.add_argument('-D', '--binddn', type=str, required=True,
+    parser.add_argument('-d', '--binddn', type=str, required=True,
                         help='DN to bind as to perform searches')
     parser.add_argument('-w', '--bindpasswd', type=str,
                         help='password for binddn')
@@ -43,15 +43,15 @@ def main():
                         help='LDAP server (defaults to %(default)s)')
     parser.add_argument('-p', '--port', type=int, default=389,
                         help='LDAP server port (defaults to %(default)i)')
-    parser.add_argument('-Z', '--tls', action='store_true',
+    parser.add_argument('-z', '--tls', action='store_true',
                         help='TLS encrypt the LDAP connection')
     parser.add_argument('-c', '--timeout', type=int, default=10,
                         help='connect timeout (defaults to %(default)i)')
     parser.add_argument('-t', '--timelimit', type=int, default=10,
                         help='search time limit (defaults to %(default)i)')
-    parser.add_argument('-B', '--basedn', type=str, required=True,
+    parser.add_argument('-b', '--basedn', type=str, required=True,
                         help='base dn under where to search for users')
-    parser.add_argument('-F', '--filter', type=str, required=True,
+    parser.add_argument('-f', '--filter', type=str, required=True,
                         help='base dn under where to search for users')
 
     if len(sys.argv) == 1:
