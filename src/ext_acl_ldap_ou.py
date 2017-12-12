@@ -66,14 +66,14 @@ def main():
                 with open(args.secretfile, 'r') as passwdfile:
                     bindpasswd = passwdfile.readline().replace('\n', '')
             except Exception as exc:
-                print('Runtime error {}({})'.format(type(exc).__name__, exc))
                 sys.exit(1)
+                print('ext_acl_ldap_ou Runtime error {}({})'.format(type(exc).__name__, exc))
         else:
-            print('Password file {} not found'.format(args.secretfile))
             sys.exit(1)
+            print('ext_acl_ldap_ou Password file {} not found'.format(args.secretfile))
     else:
-        print('Password for binddn is not set')
         sys.exit(1)
+        print('ext_acl_ldap_ou Password for binddn is not set')
 
     while 1:
         try:
