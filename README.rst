@@ -36,15 +36,15 @@ Usage
 
 
   ext_acl_ldap_ou --help
-  usage: ext_acl_ldap_ou [-h] -D BINDDN [-w BINDPASSWD] [-W SECRETFILE]
-                            [-s SERVER] [-p PORT] [-Z] [-c TIMEOUT]
-                            [-t TIMELIMIT] -B BASEDN -F FILTER
+  usage: ext_acl_ldap_ou [-h] -d BINDDN [-w BINDPASSWD] [-W SECRETFILE]
+                            [-s SERVER] [-p PORT] [-z] [-c TIMEOUT]
+                            [-t TIMELIMIT] -b BASEDN -f FILTER
 
   Squid external acl ldap ou helper
 
   optional arguments:
     -h, --help            show this help message and exit
-    -D BINDDN, --binddn BINDDN
+    -d BINDDN, --binddn BINDDN
                           DN to bind as to perform searches
     -w BINDPASSWD, --bindpasswd BINDPASSWD
                           password for binddn
@@ -53,12 +53,12 @@ Usage
     -s SERVER, --server SERVER
                           LDAP server (defaults to localhost)
     -p PORT, --port PORT  LDAP server port (defaults to 389)
-    -Z, --tls             TLS encrypt the LDAP connection
+    -z, --tls             TLS encrypt the LDAP connection
     -c TIMEOUT, --timeout TIMEOUT
                           connect timeout (defaults to 10)
     -t TIMELIMIT, --timelimit TIMELIMIT
                           search time limit (defaults to 10)
-    -B BASEDN, --basedn BASEDN
+    -b BASEDN, --basedn BASEDN
                           base dn under where to search for users
-    -F FILTER, --filter FILTER
+    -f FILTER, --filter FILTER
                           base dn under where to search for users
