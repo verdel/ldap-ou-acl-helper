@@ -34,31 +34,33 @@ Usage
 -----
 ::
 
+    ext_acl_ldap_ou --help
+    usage: ext_acl_ldap_ou.py [-h] -d BINDDN [-w BINDPASSWD] [-W SECRETFILE] -s
+                          SERVER [-p PORT] [-z] [-c TIMEOUT] [-t TIMELIMIT] -b
+                          BASEDN -f FILTER [-k] [-n]
 
-  ext_acl_ldap_ou --help
-  usage: ext_acl_ldap_ou [-h] -d BINDDN [-w BINDPASSWD] [-W SECRETFILE]
-                            [-s SERVER] [-p PORT] [-z] [-c TIMEOUT]
-                            [-t TIMELIMIT] -b BASEDN -f FILTER
+    Squid external acl ldap ou helper
 
-  Squid external acl ldap ou helper
-
-  optional arguments:
+    optional arguments:
     -h, --help            show this help message and exit
     -d BINDDN, --binddn BINDDN
-                          DN to bind as to perform searches
+                        DN to bind as to perform searches
     -w BINDPASSWD, --bindpasswd BINDPASSWD
-                          password for binddn
+                        password for binddn
     -W SECRETFILE, --secretfile SECRETFILE
-                          read password for binddn from file secretfile
+                        read password for binddn from file secretfile
     -s SERVER, --server SERVER
-                          LDAP server (defaults to localhost)
+                        LDAP server. Can be set multiple instance. Use first
+                        active strategy
     -p PORT, --port PORT  LDAP server port (defaults to 389)
-    -z, --tls             TLS encrypt the LDAP connection
+    -z, --ssl             SSL encrypt the LDAP connection
     -c TIMEOUT, --timeout TIMEOUT
-                          connect timeout (defaults to 10)
+                        connect timeout (defaults to 10)
     -t TIMELIMIT, --timelimit TIMELIMIT
-                          search time limit (defaults to 10)
+                        search time limit (defaults to 10)
     -b BASEDN, --basedn BASEDN
-                          base dn under where to search for users
+                        base dn under where to search for users. %ou = OU
     -f FILTER, --filter FILTER
-                          base dn under where to search for users
+                        user search filter pattern. %u = login
+    -k, --strip-realm     strip Kerberos realm from usernames
+    -n, --strip-domain    strip NT domain from usernames
