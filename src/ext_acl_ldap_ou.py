@@ -53,6 +53,10 @@ def main():
                         help='base dn under where to search for users')
     parser.add_argument('-f', '--filter', type=str, required=True,
                         help='base dn under where to search for users')
+    parser.add_argument('-k', '--strip-realm', action='store_true',
+                        help='strip Kerberos realm from usernames')
+    parser.add_argument('-n', '--strip-domain', action='store_true',
+                        help='strip NT domain from usernames')
 
     if len(sys.argv) == 1:
         parser.print_help()
@@ -83,6 +87,12 @@ def main():
         try:
             username = input[0]
             ou = input[1]
+
+            if args.strip_realm:
+                username = username.split('@')[0]
+            elif args.strip_domain and '\\' in username:
+                username = username.split('\\')[1]
+
             get_ldap_info(server=args.server,
                           port=args.port,
                           tls=args.tls,
