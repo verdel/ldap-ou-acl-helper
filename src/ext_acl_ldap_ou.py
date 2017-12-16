@@ -32,7 +32,7 @@ def get_ldap_info(connection='', timelimit=0, binddn='', bindpasswd='', ou='', b
 
     try:
         connection.search(search_base=basedn.replace('%ou', ou),
-                          search_filter='(&({}))'.format(filter.replace('%u', username)),
+                          search_filter=u'(&({}))'.format(filter.replace('%u', username.decode('utf-8'))),
                           search_scope=SUBTREE,
                           attributes=['sAMAccountName'],
                           time_limit=timelimit,
@@ -41,7 +41,7 @@ def get_ldap_info(connection='', timelimit=0, binddn='', bindpasswd='', ou='', b
         print('BH message={}({})'.format(type(exc).__name__, exc))
     else:
         if len(connection.response) > 0:
-            print('OK tag="{}"'.format(ou))
+            print(u'OK tag="{}"'.format(ou.decode('utf-8')))
         else:
             print('ERR')
 
