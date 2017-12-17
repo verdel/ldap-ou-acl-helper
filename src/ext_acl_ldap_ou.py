@@ -9,11 +9,12 @@ import sys
 
 def get_ldap_connection(server=[], port='', ssl=False, timeout=0, binddn='', bindpasswd=''):
     try:
-        server_pool = ServerPool([Server(item, port, use_ssl=ssl) for item in server],
+        server_pool = ServerPool([Server(item, port, use_ssl=ssl, connect_timeout=3) for item in server],
                                  FIRST,
                                  active=3,
                                  exhaust=60)
         conn = Connection(server_pool,
+                          pool_keepalive=600,
                           auto_bind=AUTO_BIND_NO_TLS,
                           read_only=True,
                           receive_timeout=timeout,
