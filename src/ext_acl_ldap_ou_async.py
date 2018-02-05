@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 from ldap3 import Server, ServerPool, Connection, FIRST, AUTO_BIND_NO_TLS, SUBTREE
-from ldap3.core.exceptions import LDAPCommunicationError
 import argparse
 from os import path
 import sys
@@ -13,20 +12,16 @@ queue = asyncio.Queue()
 
 
 def signal_handler(signal, frame):
-    loop.stop()
     sys.exit(0)
 
 
-signal.signal(signal.SIGINT, signal_handler)
-
-
-def _stdin():
+def stdin_producer():
     data = sys.stdin.readline()
     asyncio.async(queue.put(data))
 
 
-async def executor(args, bindpasswd, conn):
-    while 1:
+async def consumer(args, bindpasswd, conn):
+    while True:
         try:
             input = await queue.get()
             if len(input) == 0:
@@ -62,14 +57,14 @@ async def executor(args, bindpasswd, conn):
 
                 if conn.bound:
                     try:
-                        search_result = get_ldap_info(connection=conn,
-                                                      timelimit=int(args.timelimit),
-                                                      binddn=args.binddn,
-                                                      bindpasswd=bindpasswd,
-                                                      ou=ou,
-                                                      basedn=args.basedn,
-                                                      filter=args.filter,
-                                                      username=username)
+                        search_result = await get_ldap_info(connection=conn,
+                                                            timelimit=int(args.timelimit),
+                                                            binddn=args.binddn,
+                                                            bindpasswd=bindpasswd,
+                                                            ou=ou,
+                                                            basedn=args.basedn,
+                                                            filter=args.filter,
+                                                            username=username)
 
                     except Exception as exc:
                         print('{} BH message={}({})'.format(id, type(exc).__name__, exc))
@@ -84,7 +79,7 @@ async def executor(args, bindpasswd, conn):
                 print('{} BH message="LDAP connection could not be established"'.format(id))
                 break
                 sys.exit()
-            # sys.stdout.flush()
+            sys.stdout.flush()
         except:
             continue
 
@@ -108,7 +103,7 @@ def get_ldap_connection(server=[], port='', ssl=False, timeout=0, binddn='', bin
         return conn
 
 
-def get_ldap_info(connection='', timelimit=0, binddn='', bindpasswd='', ou='', basedn='', filter='', username=''):
+async def get_ldap_info(connection='', timelimit=0, ou='', basedn='', filter='', username=''):
     if not connection:
         return 'BH message="LDAP connection could not be established"'
 
@@ -119,9 +114,6 @@ def get_ldap_info(connection='', timelimit=0, binddn='', bindpasswd='', ou='', b
                           attributes=['sAMAccountName'],
                           time_limit=timelimit,
                           get_operational_attributes=True)
-
-    except LDAPCommunicationError as exc:
-        return exc
 
     except Exception as exc:
         return 'BH message={}({})'.format(type(exc).__name__, exc)
@@ -163,6 +155,7 @@ def create_cli():
 
 
 def main():
+    signal.signal(signal.SIGINT, signal_handler)
     parser = create_cli()
     if len(sys.argv) == 1:
         parser.print_help()
@@ -186,7 +179,7 @@ def main():
     else:
         print('ext_acl_ldap_ou Password for binddn is not set')
         bindpasswd = ''
-
+    sys.stdout.flush()
     if bindpasswd:
         try:
             conn = get_ldap_connection(server=args.server,
@@ -200,10 +193,9 @@ def main():
     else:
         sys.exit()
 
-    global loop
     loop = asyncio.get_event_loop()
-    loop.add_reader(sys.stdin, _stdin)
-    loop.run_until_complete(executor(args, bindpasswd, conn))
+    loop.add_reader(sys.stdin, stdin_producer)
+    loop.run_until_complete(consumer(args, bindpasswd, conn))
 
 
 if __name__ == '__main__':
