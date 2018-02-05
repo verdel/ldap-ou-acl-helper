@@ -30,7 +30,7 @@ setup(
     author_email='valeksandrov@me.com',
     url='https://github.com/verdel/ldap-ou-acl-helper',
     packages=find_packages(exclude=['ez_setup', 'examples', 'tests']),
-    entry_points={'console_scripts': ['ext_acl_ldap_ou=src.ext_acl_ldap_ou:main', ], },
+    entry_points={'console_scripts': ['ext_acl_ldap_ou=src.ext_acl_ldap_ou:main', 'ext_acl_ldap_ou_async=src.ext_acl_ldap_ou_async:main'], },
     include_package_data=True,
     install_requires=requirements,
     keywords='squid external acl ldap ou',
