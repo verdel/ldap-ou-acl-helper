@@ -6,6 +6,8 @@ ldap-ou-acl-helper - Squid external acl ldap ou helper
 What is this?
 *************
 ``ldap-ou-acl-helper`` provides an executable called ``ext_acl_ldap_ou``
+and ``ext_acl_ldap_ou_async`` for concurrent squid behavior. Syntax and
+options for ``ext_acl_ldap_ou_async`` exact the same as for ``ext_acl_ldap_ou``
 
 
 Installation
@@ -27,8 +29,8 @@ Installation
   cd ldap-ou-acl-helper
   python setup.py install
 
-as a result, the ``ext_acl_ldap_ou`` executable will be installed into a system ``bin``
-directory
+as a result, the ``ext_acl_ldap_ou`` and  ``ext_acl_ldap_ou_async `` executable will be installed into
+a system ``bin`` directory
 
 Usage
 -----
