@@ -1,12 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from ldap3 import Server, ServerPool, Connection, FIRST, AUTO_BIND_NO_TLS, SUBTREE, RESTARTABLE
+from ldap3 import Server, ServerPool, Connection, FIRST, AUTO_BIND_NO_TLS, SUBTREE
+from ldap3.core.exceptions import LDAPCommunicationError
 import argparse
 from os import path
 import sys
 import asyncio
 import signal
+import concurrent.futures
+import functools
 
 queue = asyncio.Queue()
 
@@ -21,6 +24,8 @@ def stdin_producer():
 
 
 async def consumer(args, bindpasswd, conn):
+    executor = concurrent.futures.ThreadPoolExecutor(max_workers=3)
+    loop = asyncio.get_event_loop()
     while True:
         try:
             input = await queue.get()
@@ -57,15 +62,15 @@ async def consumer(args, bindpasswd, conn):
 
                 if conn.bound:
                     try:
-                        search_result = await get_ldap_info(connection=conn,
-                                                            timelimit=int(args.timelimit),
-                                                            binddn=args.binddn,
-                                                            bindpasswd=bindpasswd,
-                                                            ou=ou,
-                                                            basedn=args.basedn,
-                                                            filter=args.filter,
-                                                            username=username)
-
+                        search_result = loop.run_in_executor(executor, functools.partial(get_ldap_info,
+                                                                                         connection=conn,
+                                                                                         timelimit=int(args.timelimit),
+                                                                                         binddn=args.binddn,
+                                                                                         bindpasswd=bindpasswd,
+                                                                                         ou=ou,
+                                                                                         basedn=args.basedn,
+                                                                                         filter=args.filter,
+                                                                                         username=username))
                     except Exception as exc:
                         print('{} BH message={}({})'.format(id, type(exc).__name__, exc))
                         conn.strategy.close()
@@ -73,7 +78,8 @@ async def consumer(args, bindpasswd, conn):
                             conn.bind()
 
                     else:
-                        print('{} {}'.format(id, search_result))
+                        print(search_result.done())
+                        print('{} {}'.format(id, search_result.result()))
 
             else:
                 print('{} BH message="LDAP connection could not be established"'.format(id))
@@ -95,7 +101,6 @@ def get_ldap_connection(server=[], port='', ssl=False, timeout=0, binddn='', bin
                           read_only=True,
                           receive_timeout=timeout,
                           check_names=True,
-                          client_strategy=RESTARTABLE,
                           user=binddn, password=bindpasswd)
     except Exception as exc:
         print('ext_acl_ldap_group LDAP bind error {}({})'.format(type(exc).__name__, exc))
@@ -104,7 +109,7 @@ def get_ldap_connection(server=[], port='', ssl=False, timeout=0, binddn='', bin
         return conn
 
 
-async def get_ldap_info(connection='', timelimit=0, ou='', basedn='', filter='', username=''):
+async def get_ldap_info(connection='', timelimit=0, binddn='', bindpasswd='', ou='', basedn='', filter='', username=''):
     if not connection:
         return 'BH message="LDAP connection could not be established"'
 
@@ -115,6 +120,9 @@ async def get_ldap_info(connection='', timelimit=0, ou='', basedn='', filter='',
                           attributes=['sAMAccountName'],
                           time_limit=timelimit,
                           get_operational_attributes=True)
+
+    except LDAPCommunicationError as exc:
+        return exc
 
     except Exception as exc:
         return 'BH message={}({})'.format(type(exc).__name__, exc)
